@@ -1,0 +1,28 @@
+spring:
+  # Configuration needed for top-level Kafka interactions (KafkaTemplate and other goodies)
+  kafka:
+    bootstrap-servers: localhost:9092
+    properties.schema.registry.url: http://localhost:8180
+    producer.key-serializer: org.apache.kafka.common.serialization.StringSerializer
+    producer.value-serializer: io.confluent.kafka.serializers.KafkaAvroSerializer
+    producer.acks: all
+    consumer.key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    consumer.value-deserializer: io.confluent.kafka.serializers.KafkaAvroDeserializer
+    properties.specific.avro.reader: true
+  # Configuration needed for KStreams
+  cloud:
+    stream:
+      kafka:
+        streams:
+          # Those are bindings specific to Kafka binders, and how they behave
+          bindings:
+            order-in-0:
+              consumer.valueSerde: io.confluent.kafka.streams.serdes.avro.SpecificAvroSerde
+            order-out-0:
+              producer.valueSerde: io.confluent.kafka.streams.serdes.avro.SpecificAvroSerde
+      # CHECK where the 'bindings' are. They should be under spring.cloud.stream directly.
+      bindings:
+        order-in-0:
+          destination: orders
+        order-out-0:
+          destination: orders-transformed
